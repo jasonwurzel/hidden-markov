@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace TestApp
 {
@@ -35,8 +36,8 @@ namespace TestApp
 			for (var k = 0; k < 3*numberOfNodes; k++)
 			{
 				var random = new Random();
-				var i = random.Next()*numberOfNodes;
-				var j = random.Next()*numberOfNodes;
+				int i = (int) Math.Round(Math.Abs(random.NextDouble()*numberOfNodes));
+				int j = (int) Math.Round(Math.Abs(random.NextDouble() * numberOfNodes));
 				if (i == j) continue;
 				if (Init[i] + Init[j] > 0.9) continue;
 				var obj = Init[i]*random.NextDouble();
@@ -199,7 +200,7 @@ namespace TestApp
 			///     Generate string from HMM which ends with stop, and has min. length len. q determines minimum quality.
 			/// </summary>
 			/// <returns></returns>
-			public string Generate(char stop, int length, double quality)
+			public static string Generate(char stop, int length, double quality, HiddenMarkovModel hmm)
 			{
 				Func<List<double>, int> choose = s1 =>
 												{
@@ -211,20 +212,20 @@ namespace TestApp
 												};
 
 				var resultingString = "";
-				var c = '';
+				char c;
 				Node node;
 
-				var pos = choose(_hmm.Init);
+				var pos = choose(hmm.Init);
 				do
 				{
 					resultingString = "";
 					do
 					{
-						node = _hmm.Nodes[pos];
-						c = _hmm.Alphabet[choose(node.Prob)];
+						node = hmm.Nodes[pos];
+						c = hmm.Alphabet[choose(node.Prob)];
 						if (resultingString.Length < length && c == stop)
 						{
-							Debugger.Break();
+							//Debugger.Break();
 							// WTF???
 							//c = stop + 'x';
 						}
@@ -234,39 +235,57 @@ namespace TestApp
 							pos = choose(node.Next);
 						}
 					} while (c != stop);
-				} while (quality > 0 && Math.Pow(evaluate(resultingString), 1/resultingString.Length) < quality);
+				} while (quality > 0 && Math.Pow(evaluate(resultingString, hmm), 1/resultingString.Length) < quality);
 				return resultingString;
 			}
 
-			private double evaluate(string resultingString)
+			private static double evaluate(string resultingString, HiddenMarkovModel hmm)
 			{
-				var alpha = new List<List<double>>();
+				var alpha = initializeAlphaList(resultingString.Length, hmm.Nodes.Count);
 
 				int i = 0, j, k;
 				double sum = 0;
 				int input;
 
+				
+
 
 				for (i = 0; i < resultingString.Length; i++)
 				{
-					alpha[i] = new List<double>();
-					input = _hmm.Alphabet.IndexOf(resultingString[i]);
+					var alphaList = alpha.ElementAt(i);
+					
+					input = hmm.Alphabet.IndexOf(resultingString[i]);
 					if (input == -1) throw new InvalidOperationException("Invalid character: " + resultingString[i]);
-					for (j = 0; j < _hmm.Nodes.Count; j++)
+					for (j = 0; j < hmm.Nodes.Count; j++)
 					{
 						if (i == 0)
 						{
-							alpha[0][j] = _hmm.Init[j]*_hmm.Nodes[j].Prob[input];
+							alphaList.Add(hmm.Init[j] * hmm.Nodes[j].Prob[input]);
 						}
 						else
 						{
-							for (k = 0, sum = 0; k < _hmm.Nodes.Count; k++) sum += alpha[i - 1][k]*_hmm.Nodes[k].Next[j];
-							alpha[i][j] = sum*_hmm.Nodes[j].Prob[input];
+							var alphaListPredecessor = alpha.ElementAt(i - 1);
+							for (k = 0, sum = 0; k < hmm.Nodes.Count; k++) 
+								sum += alphaListPredecessor[k] * hmm.Nodes[k].Next[j];
+							alphaList.Add(sum * hmm.Nodes[j].Prob[input]);
 						}
 					}
 				}
-				for (sum = i = 0; i < _hmm.Nodes.Count; i++) sum += alpha[resultingString.Length - 1][i];
+				for (sum = i = 0; i < hmm.Nodes.Count; i++) sum += alpha[resultingString.Length - 1][i];
 				return sum;
+			}
+
+			private static List<List<double>> initializeAlphaList(int countList, int countInnerLists)
+			{
+				var result = new List<List<double>>();
+
+				for (int i = 0; i < countList; i++)
+				{
+					List<double> list = new List<double>();
+					result.Add(list);
+				}
+
+				return result;
 			}
 		}
 	}

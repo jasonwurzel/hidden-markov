@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp.csproj", "{5BFB490E-C134-486F-902E-DA5C36FBC93A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HiddenMarkovTests", "..\HiddenMarkovTests\HiddenMarkovTests.csproj", "{CB751876-F763-4F73-895B-6F98465B80F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5BFB490E-C134-486F-902E-DA5C36FBC93A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BFB490E-C134-486F-902E-DA5C36FBC93A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BFB490E-C134-486F-902E-DA5C36FBC93A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB751876-F763-4F73-895B-6F98465B80F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB751876-F763-4F73-895B-6F98465B80F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB751876-F763-4F73-895B-6F98465B80F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB751876-F763-4F73-895B-6F98465B80F8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
